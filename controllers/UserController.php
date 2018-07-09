@@ -437,7 +437,7 @@ class UserController extends BaseController
                 $res['num'] = $num;
               }else{
                 $time = time()-$color['time'];
-                $c = 120 * 24;
+                $c = 7200 * 24;
                 $perce = (round($time / $c,2))*100;
                 if($perce>100){
                   $perce=100;
