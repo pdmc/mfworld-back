@@ -320,9 +320,9 @@ class AnswerController extends BaseController
                 $sql7 = "select value from {{%config}} where `key`='problemConfig' ";
                 $config = Yii::$app->db->createCommand($sql7)->queryOne();
                 $configData=json_decode($config['value'],true);
+                $sql = "select eth_addr from {{%user}} where user_id=".$arr['user_id'];
+                $jipeng = Yii::$app->db->createCommand($sql)->queryOne();
                 if ($total_score >= $configData['pro_error']) {
-                    $sql = "select eth_addr from {{%user}} where user_id=".$arr['user_id'];
-                    $jipeng = Yii::$app->db->createCommand($sql)->queryOne();
                     $success = 1;
                     $post_data['action'] = 'energy';
                     $post_data['value'] = $configData['pro_energy'];
@@ -343,6 +343,9 @@ class AnswerController extends BaseController
                 $all['correct'] = $re['correct'];
                 $all['success'] = $success;
                 $sql3 = "insert into {{%answer_round}} (user_id,user_nick,problem_all_id,total_num,total_score,consume_num,get_reward,result,create_time) values (" . $arr['user_id'] . ",'" . $arr['user_nick'] . "','" . substr($problem_all_id, 0, -1) . "',".$configData['pro_num']."," . $total_score . ",".$configData['pro_tili']."," . $reward . "," . $success . "," . time() . ")";
+                if($jipeng['physical']-30<0){
+                $sql4 = "update ml_user set physical=0,energy=energy+" . $reward . " where user_id =" . $arr['user_id'] . "";
+                }
                 $sql4 = "update {{%user}} set physical=physical-30,energy=energy+" . $reward . " where user_id =" . $arr['user_id'] . "";
                 $re3 = Yii::$app->db->createCommand($sql3)->execute();
                 $re4 = Yii::$app->db->createCommand($sql4)->execute();
