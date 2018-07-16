@@ -283,9 +283,17 @@ class UserController extends BaseController
     $post_data['user'] = $re['eth_addr'];
     $res=CurlHelper::curl_post('',$post_data);
     $json = json_decode($res,true);
-    // print_r($json);die;
-    $pow = pow(10, 18);
-    $num = number_format($json['data']/$pow, 5);
+    if(strpos($json['data'],'+')!==false){
+        $ji = $this-> sctonum($json['data'], 21);
+        $peng = explode('.',$ji);
+        $pow = pow(10, 18);
+        $num = number_format($peng[0]/$pow,5,'.','');
+    }else{
+        $pow = pow(10, 18);
+         $num = number_format($json['data']/$pow,5);
+    }
+    // $pow = pow(10, 18);
+    // $num = number_format($json['data']/$pow, 5);
 	    if($json['code']==200)
 	    {
         $sql1 = "insert into {{%color_log}} (user_id,type,value,create_time) VALUES (".$arr['user_id'].",'2',".$arr['color'].",'".time()."')";
