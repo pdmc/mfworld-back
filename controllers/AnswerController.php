@@ -234,7 +234,7 @@ class AnswerController extends BaseController
                 $str.=$vv['id'].",";
             }
             $new_str = substr($str,0,-1);
-            $sql1 = "select * from {{%problem}} where cate_id in (".$new_str.") order by RAND() limit 10 ";
+            $sql1 = "select * from {{%problem}} where cate_id in (".$new_str.") and status=1 order by RAND() limit 10 ";
             $res = Yii::$app->db->createCommand($sql1)->queryAll();
 
             foreach ($res as $key => $value) {
