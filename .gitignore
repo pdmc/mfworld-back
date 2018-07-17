@@ -5,3 +5,8 @@ protected/runtime/*
 protected/data/*.db
 themes/classic/views/
 vendor/
+
+/runtime/
+/nbproject/
+config.php
+database.php
