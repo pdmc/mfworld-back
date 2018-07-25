@@ -38,7 +38,12 @@ class BaseController extends Controller
     
     public function beforeAction($action)
     { 
-    	
+    	// echo 111;die;
+    	// 设置允许跨域的域名
+    	 header('Access-Control-Allow-Origin:https://iontrum.pk4yo.com');   
+        //header('Access-Control-Allow-Origin:http://localhost:8080');
+        
+        header('Access-Control-Allow-Credentials:true');
 		// 返回格式未json
     	Yii::$app->response->format = Response::FORMAT_JSON;
 		

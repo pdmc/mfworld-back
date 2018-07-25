@@ -203,18 +203,10 @@ class AnswerController extends BaseController
 	}
 //	print_r($res);die;
         foreach ($res as $k => $v) {
-	    if($v['time']==""){
-		unset($res[$k]);	
-	    }
-            //$num[$k] = $v['num'];
-	    //$time[$k] = $v['time'];
+            $num[$k] = $v['num'];
+	    $time[$k] = $v['time'];
         }
-	$res = array_values($res);
-        //print_r($res);die;
-	foreach($res as $k=>$v){
-	    $num[$k] = $v['num'];
-            $time[$k] = $v['time'];
-	}
+       // print_r($res);die;
         array_multisort($num, SORT_NUMERIC, SORT_DESC,$time,SORT_NUMERIC,SORT_ASC, $res);
 	//print_r($res);die;
         return $this->responseHelper($res, '202', '202', 'success');
@@ -286,7 +278,7 @@ class AnswerController extends BaseController
             }
             $new_str = substr($str,0,-1);
             // echo $new_str;die;
-            $sql1 = "select * from ml_problem where cate_id in (".$new_str.") and status=1 order by RAND() limit 10 ";
+            $sql1 = "select * from ml_problem where cate_id in (".$new_str.") order by RAND() limit 10 ";
             // echo $sql1;die;
             $res = Yii::$app->db->createCommand($sql1)->queryAll();
             // print_r($res);die;
@@ -386,12 +378,10 @@ class AnswerController extends BaseController
                 $sql7 = "select value from {{%config}} where `key`='problemConfig' ";
                 $config = Yii::$app->db->createCommand($sql7)->queryOne();
                 $configData=json_decode($config['value'],true);
-                $sql = "select eth_addr,physical from {{%user}} where user_id=".$arr['user_id'];
-                $jipeng = Yii::$app->db->createCommand($sql)->queryOne();
                 if ($total_score >= $configData['pro_error']) {
                     // echo 33333;die;
-                    // $sql = "select eth_addr,physical from {{%user}} where user_id=".$arr['user_id'];
-                    // $jipeng = Yii::$app->db->createCommand($sql)->queryOne();
+                    $sql = "select eth_addr,physical from {{%user}} where user_id=".$arr['user_id'];
+                    $jipeng = Yii::$app->db->createCommand($sql)->queryOne();
                     $success = 1;
                     $post_data['action'] = 'energy';
                     $post_data['value'] = $configData['pro_energy'];
@@ -415,9 +405,9 @@ class AnswerController extends BaseController
                 $sba['success'] = $success;
                 $sql3 = "insert into ml_answer_round (user_id,user_nick,problem_all_id,total_num,total_score,consume_num,get_reward,result,create_time) values (" . $arr['user_id'] . ",'" . $arr['user_nick'] . "','" . substr($problem_all_id, 0, -1) . "',".$configData['pro_num']."," . $total_score . ",".$configData['pro_tili']."," . $reward . "," . $success . "," . time() . ")";
                 // -30 user
-		      if($jipeng['physical']-30<0){
-		          $sql4 = "update ml_user set physical=0,energy=energy+" . $reward . " where user_id =" . $arr['user_id'] . "";
-		      }
+		//if($jipeng['physical']-30<0){
+		//$sql4 = "update ml_user set physical=0,energy=energy+" . $reward . " where user_id =" . $arr['user_id'] . "";
+		//}
                 $sql4 = "update ml_user set physical=physical-30,energy=energy+" . $reward . " where user_id =" . $arr['user_id'] . "";
                 //$transaction = \Yii::$app->db->beginTransaction();   //开始事务
                 // try {

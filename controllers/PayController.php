@@ -15,20 +15,23 @@ class PayController extends BaseController
 	{
         date_default_timezone_set('PRC'); 
         $arr = Yii::$app->request->post();
-  
+        // print_r($arr);die;
+        // echo $arr['user_id'];die;
         if(empty($arr['user_id'])){
             return $this->responseHelper([], '202', '202', "用户信息不存在");
         }
         $all = 0;
         if(!empty($arr['prop'])){
             foreach ($arr['prop'] as $k => $v) {
-            $sql = "select price from {{%prop}} where id=".$v['id']."";
+            $sql = "select price from ml_prop where id=".$v['id']."";
             $price = Yii::$app->db->createCommand($sql)->queryOne();
             $all += $price['price']*$v['num'];
             }
             $prop = json_encode($arr['prop']);
+        // }
+        // $prop="";
         $order_id = $this->sp_build_order_no();
-        $sql1 = "insert into {{%order}} (order_id,prop,order_time,user_id,order_status,order_price,pay_type) VALUES ('".$order_id."','".$prop."','".date('Y-m-d H:i:s',time())."','".$arr['user_id']."','1','".$all."','".$arr['type']."')";
+        $sql1 = "insert into ml_order (order_id,prop,order_time,user_id,order_status,order_price,pay_type) VALUES ('".$order_id."','".$prop."','".date('Y-m-d H:i:s',time())."','".$arr['user_id']."','1','".$all."','".$arr['type']."')";
         $success= Yii::$app->db->createCommand($sql1)->execute();
         if($success){           
 		$html =  $this->generate_pay($order_id, $all);
@@ -69,23 +72,23 @@ class PayController extends BaseController
             $notify_time    = $_POST['notify_time'];
 
           if ($_POST['trade_status'] == 'TRADE_SUCCESS') {
-            $sql="select * from {{%order}}  where order_id='".$_POST['out_trade_no']."' and  order_status=1";
+            $sql="select * from ml_order where order_id='".$_POST['out_trade_no']."' and  order_status=1";
             $re = Yii::$app->db->createCommand($sql)->queryOne();        
             if(!empty($re)){ 
-                $sql = "update {{%order}}  set order_status=2,pay_time='".date('Y-m-d H:i:s',time())."' where order_id ='".$_POST['out_trade_no']."'";
+                $sql = "update ml_order set order_status=2,pay_time='".date('Y-m-d H:i:s',time())."' where order_id ='".$_POST['out_trade_no']."'";
                 $success = Yii::$app->db->createCommand($sql)->execute();
                 if($success){
                    $prop = json_decode($re['prop'],true);
                    foreach($prop as $k=>$v){
-                    $sql2 = "select prop_type,prop_mul from {{%prop}}  where `id`=".$v['id']."";
+                    $sql2 = "select prop_type,prop_mul from ml_prop where `id`=".$v['id']."";
                      $arr[$v['id']] = Yii::$app->db->createCommand($sql2)->queryOne();
                      $arr[$v['id']]['num'] = $v['num'];
                     }
                     $new=$this->arrangeData($arr);
-                    $sql1= "select * from {{%knapsack}} where user_id=".$re['user_id']."";
+                    $sql1= "select * from ml_knapsack where user_id=".$re['user_id']."";
                     $res = Yii::$app->db->createCommand($sql1)->queryOne();
                     if(empty($res)){
-                            $sql2 = "insert into {{%knapsack}} (user_id,sku) values (".$re['user_id'].",'".json_encode($new)."')";
+                            $sql2 = "insert into ml_knapsack (user_id,sku) values (".$re['user_id'].",'".json_encode($new)."')";
                     }else{
                             $old = json_decode($res['sku'],true);
                             foreach($old as $k=>$v){
@@ -97,7 +100,7 @@ class PayController extends BaseController
                                 }
                             }
                              $update = array_merge($old,$new);
-                             $sql2 = "update {{%knapsack}} set sku='".json_encode($update)."' where user_id=".$re['user_id']."";
+                             $sql2 = "update ml_knapsack set sku='".json_encode($update)."' where user_id=".$re['user_id']."";
                     }
                     Yii::$app->db->createCommand($sql2)->execute();   
                 }
@@ -133,9 +136,9 @@ class PayController extends BaseController
             $trade_status = $_GET['trade_status'];
 
             if($trade_status == 'TRADE_FINISHED' || $trade_status == 'TRADE_SUCCESS') {
-                return $this->redirect("");
+                return $this->redirect("https://iontrum.pk4yo.com/good_store");
             } else {
-                return $this->redirect("");
+                return $this->redirect("https://iontrum.pk4yo.com/PayFailure");
             }
         }
         else {
@@ -147,18 +150,18 @@ class PayController extends BaseController
         //下面是发送到表单的参数
         $parameter = array(
             "service" => Yii::$app->params['pc_alipay']['service'],//端口方式
-            "partner" => '',//合作身份者id
-            "seller_id" => '',// 收款支付宝账号
+            "partner" => '2088721600105567',//合作身份者id
+            "seller_id" => '851515466@qq.com',// 收款支付宝账号
             "payment_type" => 1,// 支付类型
-            "notify_url" => "",// 服务器异步通知页面路径
-            "return_url" => "",// 页面跳转同步通知页面路径 https://app-test.imheixiu.com
+            "notify_url" => "http://api.iontrum.pk4yo.com/index.php/pay/notify",// 服务器异步通知页面路径
+            "return_url" => "http://api.iontrum.pk4yo.com/index.php/pay/success",// 页面跳转同步通知页面路径 https://app-test.imheixiu.com
             "_input_charset" => trim(strtolower('utf-8')),// 字符编码格式
             "out_trade_no" => $order_id, // 商户网站订单系统中唯一订单号
             "subject" => '道具购买',// 订单名称
             "total_fee" => $money,   // 付款金额             
             // "show_url" => "http://miraila.dev.pk4yo.com/index.php/pay/success",
             "app_pay" => "Y",//启用此参数能唤起钱包APP支付宝
-            "body" => '',// 订单描述 可选
+            "body" => 'iontrum-H5支付',// 订单描述 可选
         );
         //建立请求
         $alipaySubmit = new AlipaySubmit(Yii::$app->params['pc_alipay']);
@@ -180,20 +183,22 @@ class PayController extends BaseController
         $all = 0;
         if(!empty($post['prop'])){
         foreach ($post['prop'] as $k => $v) {
-            $sql = "select price from {{%prop}} where id=".$v['id']."";
+            $sql = "select price from ml_prop where id=".$v['id']."";
             $price = Yii::$app->db->createCommand($sql)->queryOne();
             $all += $price['price']*$v['num'];
         }
         $prop = json_encode($post['prop']);
-        
+        // }
+        // $prop="";
         $order_id = $this->sp_build_order_no();
-        $sql1 = "insert into {{%order}} (order_id,prop,order_time,user_id,order_status,order_price,pay_type) VALUES ('".$order_id."','".$prop."','".date('Y-m-d H:i:s',time())."','".$post['user_id']."','1','".$all."','".$post['type']."')";
+        $sql1 = "insert into ml_order (order_id,prop,order_time,user_id,order_status,order_price,pay_type) VALUES ('".$order_id."','".$prop."','".date('Y-m-d H:i:s',time())."','".$post['user_id']."','1','".$all."','".$post['type']."')";
         $success= Yii::$app->db->createCommand($sql1)->execute();
-        $url='';  //下单地址  
-        $appid='';//公众号appid  
-        $appsecret='';  
-        $mch_id='';//商户平台id  
-        $nonce_str=;//随机数  
+        // $redirect_url="http://h5.miraila.dev.pk4yo.com/PaySuccess";       
+        $url='https://api.mch.weixin.qq.com/pay/unifiedorder';  //下单地址  
+        $appid='wx865a30f6140b1c65';//公众号appid  
+        $appsecret='87bd4380adf06e378ea9aaad0e56712b';  
+        $mch_id='1423348902';//商户平台id  
+        $nonce_str='qyzf'.rand(100000, 999999);//随机数  
         $out_trade_no=$order_id;  
         $ip=$this->getClientIp();  
         $scene_info='{"h5_info": {"type":"Wap","app_name": "project info","package_name": "wap订单微信支付"}}';
@@ -201,8 +206,8 @@ class PayController extends BaseController
         $total_fee_fu =$all*100;
         $trade_type='MWEB';  
         $attach='wap支付';  
-        $body='';  
-        $notify_url='';  
+        $body='iontrum-H5支付';  
+        $notify_url='https://api.iontrum.pk4yo.com/index.php/pay/wnotify';  
         $arr=[  
             'appid'=>$appid,  
             'mch_id'=>$mch_id,  
@@ -210,6 +215,7 @@ class PayController extends BaseController
             'out_trade_no'=>$out_trade_no,  
             'spbill_create_ip'=>$ip,  
             'scene_info'=>$scene_info,  
+//           'openid'=>$openid,  
             'total_fee'=>$total_fee_fu,  
             'trade_type'=>$trade_type, 
             'attach'=>$attach,  
@@ -217,6 +223,7 @@ class PayController extends BaseController
             'notify_url'=>$notify_url  
         ];  
         $sign=$this->getSign($arr); 
+        //<openid>'.$openid.'</openid>  
        $data='<xml>  
              <appid>'.$appid.'</appid>  
              <attach>'.$attach.'</attach>  
@@ -258,23 +265,23 @@ class PayController extends BaseController
             return $this->responseHelper([], '202', '202', "fail");
         }
         $out_trade_no = $data['out_trade_no'];
-        $sql="select * from {{%order}} where order_id='".$out_trade_no."' and  order_status=1";
+        $sql="select * from ml_order where order_id='".$out_trade_no."' and  order_status=1";
         $re = Yii::$app->db->createCommand($sql)->queryOne();        
         if(!empty($re)){ 
-            $sql = "update {{%order}} set order_status=2,pay_time='".date('Y-m-d H:i:s',time())."' where order_id ='".$out_trade_no."'";
+            $sql = "update ml_order set order_status=2,pay_time='".date('Y-m-d H:i:s',time())."' where order_id ='".$out_trade_no."'";
             $success = Yii::$app->db->createCommand($sql)->execute();
             if($success){
                    $prop = json_decode($re['prop'],true);
                    foreach($prop as $k=>$v){
-                    $sql2 = "select prop_type,prop_mul from {{%prop}} where `id`=".$v['id']."";
+                    $sql2 = "select prop_type,prop_mul from ml_prop where `id`=".$v['id']."";
                      $arr[$v['id']] = Yii::$app->db->createCommand($sql2)->queryOne();
                      $arr[$v['id']]['num'] = $v['num'];
                     }
                     $new=$this->arrangeData($arr);
-                    $sql1= "select * from {{%knapsack}} where user_id=".$re['user_id']."";
+                    $sql1= "select * from ml_knapsack where user_id=".$re['user_id']."";
                     $res = Yii::$app->db->createCommand($sql1)->queryOne();
                     if(empty($res)){
-                            $sql2 = "insert into {{%knapsack}} (user_id,sku) values (".$re['user_id'].",'".json_encode($new)."')";
+                            $sql2 = "insert into ml_knapsack (user_id,sku) values (".$re['user_id'].",'".json_encode($new)."')";
                     }else{
                             $old = json_decode($res['sku'],true);
                             foreach($old as $k=>$v){
@@ -286,7 +293,7 @@ class PayController extends BaseController
                                 }
                             }
                              $update = array_merge($old,$new);
-                             $sql2 = "update {{%knapsack}} set sku='".json_encode($update)."' where user_id=".$re['user_id']."";
+                             $sql2 = "update ml_knapsack set sku='".json_encode($update)."' where user_id=".$re['user_id']."";
                     }
                     Yii::$app->db->createCommand($sql2)->execute();   
                 }
@@ -295,6 +302,7 @@ class PayController extends BaseController
     }
 	public	function sp_build_order_no()
 	{
+    //return date('Ymd').substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
     mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.
     $uuid = strtoupper(md5(uniqid(rand(), true)));
     // $uuid = substr($charid, 0, 8)
@@ -327,7 +335,7 @@ class PayController extends BaseController
         $String = $this->formatBizQueryParaMap($Parameters, false);  
         //echo '【string1】'.$String.'</br>';  
         //签名步骤二：在string后加入KEY   5a02bd8ecxxxxxxxxxxxxc1aae7d199  这里的秘钥是 商户平台设置的一定要改不然报签名错误  
-        $String = $String;  
+        $String = $String."&key=PK4yo20173b9a915079d4e71c4ad57ab";  
         //echo "【string2】".$String."</br>";  
         //签名步骤三：MD5加密  
         $String = md5($String);  
@@ -364,6 +372,7 @@ class PayController extends BaseController
             {  
                 $v = urlencode($v);  
             }  
+            //$buff .= strtolower($k) . "=" . $v . "&";  
             $buff .= $k . "=" . $v . "&";  
         }  
         $reqPar='';  
