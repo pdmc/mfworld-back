@@ -101,7 +101,7 @@ class UserController extends BaseController
 			}else{
 				$invite_num =10;
 			}
-			$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`invite_code`,`create_time`, `update_time`,`invite_id`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$this->make_coupon_card()."', '".time()."', '".time()."',".$inviteData['user_id'].")";
+			$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`invite_code`,`energy`,`create_time`, `update_time`,`invite_id`) VALUES ('" . $user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$this->make_coupon_card()."', '" . CommonHelper::REGISTER_ENERGY . "', '".time()."', '".time()."',".$inviteData['user_id'].")";
 			//$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`eth_addr`,`eth_key`,`invite_code`,`create_time`, `update_time`,`invite_id`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$address[1]."','".$private."','".$this->make_coupon_card()."', '".time()."', '".time()."',".$inviteData['user_id'].")";
 			$insert = Yii::$app->db->createCommand($sql3)->execute();
 			$sql4 = "update {{%user}} set invite_num=".$invite_num." where user_id=".$inviteData['user_id']."";
@@ -114,13 +114,13 @@ class UserController extends BaseController
 						$post_data['user'] = $inviteData['eth_addr'];
 						$res=CurlHelper::curl_post('http://172.16.101.167:8282/node',$post_data);
 						$json = json_decode($res,true);
-						if($json['code']==200){
-							$sql7 = "update ml_user set energy=".$json['data']." where user_id = '".$inviteData['user_id']."'";
-							$updates = Yii::$app->db->createCommand($sql7)->execute();*/
-							$sql8 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6',".$post_data['value'].",".time().")";
+						if($json['code']==200){*/
+							$sql7 = "update ml_user set energy=energy+".CommonHelper::FRIEND_ENERGY." where user_id = '".$inviteData['user_id']."'";
+							$updates = Yii::$app->db->createCommand($sql7)->execute();
+							//$sql8 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6',".$post_data['value'].",".time().")";
+							$sql8 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6',".$post_data['value'].",".time().")";
 							$inserts = Yii::$app->db->createCommand($sql8)->execute();
-							//if($updates && $inserts){
-							if($inserts){
+							if($updates && $inserts){
 								return $this->responseHelper([], '207', '207', "注册成功");
 							}
 						/*}*/
@@ -237,7 +237,7 @@ class UserController extends BaseController
 		 			$sql2 = "insert into ml_login_logs (user_id,client_name,login_time,login_ip,login_type) VALUES (".$re['user_id'].",'".$re['user_nick']."','".date('Y-m-d H:i:s',time())."','".CommonHelper::getClientIp()."',".$login_type.")";
 		 			$sql3 = "update ml_user set token='" . $token . "',energy=energy+" . CommonHelper::LOGIN_ENERGY . " where user_id = '" . $re['user_id'] . "'";
 		 			//$sql3 = "update ml_user set token='".$token."',energy=".$json['data']." where user_id = '".$re['user_id']."'";
-		 			$sql4 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $re['user_id'] . ",'3'," . CommonHelper::LOGIN_ENERGY .",".time().")";
+		 			$sql4 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $re['user_id'] . ",'3','" . CommonHelper::LOGIN_ENERGY ."',".time().")";
 		 			//$sql4 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$re['user_id'].",'3',".$post_data['value'].",".time().")";
 	 				// echo $sql3."<br/>".$sql4;die;
 		 			$insert = Yii::$app->db->createCommand($sql2)->execute();
@@ -279,11 +279,11 @@ class UserController extends BaseController
 			$sql8 = "update ml_user set token='".$token."' where user_id = '".$re['user_id']."'";
 			$insert = Yii::$app->db->createCommand($sql7)->execute();
 			$update = Yii::$app->db->createCommand($sql8)->execute();
-			$color=$this->color($re['eth_addr']);
+			/*$color=$this->color($re['eth_addr']);
 			//print_r($color);die;
 			$pow = pow(10, 18);
 			$num = number_format($color['data']/$pow, 5);
-			if($color['code']==200){
+			if($color['code']==200){ */
 				if($insert && $update){
 					$data['mobile'] = substr_replace($re['user_mobile'],'****',3,4);
 					$data['user_nick'] = $re['user_nick'];
@@ -292,26 +292,27 @@ class UserController extends BaseController
 					$data['invite_code'] = $re['invite_code'];
 					$data['user_id'] = $re['user_id'];
 					$data['physical'] = $re['physical'];
-					 if($num=='0.00000'){
-					$data['color'] = $num;
+					/*if($num=='0.00000'){
+						$data['color'] = $num;
 					}else{
-					$time = time()-$color['time'];
-					// echo $time;die;
-					$c = 120 * 24;
-					$perce = round($time / $c,2);
-					$data['color'] = array(
-						'num'=>$num,
-						'perce'=>$perce
+						$time = time()-$color['time'];
+						// echo $time;die;
+						$c = 120 * 24;
+						$perce = round($time / $c,2);
+						$data['color'] = array(
+							'num'=>$num,
+							'perce'=>$perce
 						);
-					}
+					}*/
+					$data['color'] = '0.00000';
 					$data['ucolor'] = $re['color'];
 					$data['energy'] = $re['energy'];
 					// print_r($data);die;
 					return $this->responseHelper($data, '208', '208', "登录成功");
 				} 
-			}else{
+			/*}else{
 				return $this->responseHelper([], '211', '211', "fail");
-			}	 		 
+			}	*/ 		 
  		}else{
  			return $this->responseHelper([], '210', '210', "登陆失败");
  		}
