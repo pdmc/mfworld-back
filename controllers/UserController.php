@@ -104,9 +104,12 @@ class UserController extends BaseController
 			$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`invite_code`,`energy`,`create_time`, `update_time`,`invite_id`) VALUES ('" . $user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$this->make_coupon_card()."', '" . CommonHelper::REGISTER_ENERGY . "', '".time()."', '".time()."',".$inviteData['user_id'].")";
 			//$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`eth_addr`,`eth_key`,`invite_code`,`create_time`, `update_time`,`invite_id`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$address[1]."','".$private."','".$this->make_coupon_card()."', '".time()."', '".time()."',".$inviteData['user_id'].")";
 			$insert = Yii::$app->db->createCommand($sql3)->execute();
+			$uid = Yii::app()->db->getLastInsertID();
 			$sql4 = "update {{%user}} set invite_num=".$invite_num." where user_id=".$inviteData['user_id']."";
 			$update = Yii::$app->db->createCommand($sql4)->execute();
-			if($insert && $update){
+			$sql5 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $uid . ",'2','" . CommonHelper::REGISTER_ENERGY ."',".time().")";
+ 			$energy = Yii::$app->db->createCommand($sql5)->execute();
+			if($insert && $update && $energy){
 				if($invite_num<=10){
 					if(!empty($arr['invite_code'])){
 						/*$post_data['action'] = 'energy';
@@ -118,7 +121,7 @@ class UserController extends BaseController
 							$sql7 = "update ml_user set energy=energy+".CommonHelper::FRIEND_ENERGY." where user_id = '".$inviteData['user_id']."'";
 							$updates = Yii::$app->db->createCommand($sql7)->execute();
 							//$sql8 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6',".$post_data['value'].",".time().")";
-							$sql8 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6',".$post_data['value'].",".time().")";
+							$sql8 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6','".CommonHelper::FRIEND_ENERGY."','".time()."')";
 							$inserts = Yii::$app->db->createCommand($sql8)->execute();
 							if($updates && $inserts){
 								return $this->responseHelper([], '207', '207', "注册成功");
@@ -133,7 +136,11 @@ class UserController extends BaseController
 			//$sql4 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`eth_addr`,`eth_key`,`invite_code`,	`create_time`, `update_time`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$address[1]."','".$private."','".$this->make_coupon_card()."', '".time()."', '".time()."')";
 			$insert = Yii::$app->db->createCommand($sql4)->execute();
 			if($insert){
-				return $this->responseHelper([], '207', '207', "注册成功");
+				$uid = Yii::app()->db->getLastInsertID();
+				$sql5 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $uid . ",'2','" . CommonHelper::REGISTER_ENERGY ."',".time().")";
+	 			$energy = Yii::$app->db->createCommand($sql5)->execute();
+	 			if($energy)
+					return $this->responseHelper([], '207', '207', "注册成功");
 			}
 		}	 		
 			
