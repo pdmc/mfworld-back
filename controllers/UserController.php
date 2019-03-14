@@ -129,28 +129,10 @@ class UserController extends BaseController
 				return $this->responseHelper([], '207', '207', "注册成功");
 			}
 		}else{
-			$sql4 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`, `invite_code`,	`create_time`, `update_time`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$this->make_coupon_card()."', '".time()."', '".time()."')";
+			$sql4 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`, `invite_code`,`energy`,`create_time`, `update_time`) VALUES ('" . $user_name."', '" . md5($pwd)."','".$sex."', '".$mobile."','".$this->make_coupon_card()."', '" . CommonHelper::REGISTER_ENERGY . "', '" .time()."', '".time()."')";
 			//$sql4 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`eth_addr`,`eth_key`,`invite_code`,	`create_time`, `update_time`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$address[1]."','".$private."','".$this->make_coupon_card()."', '".time()."', '".time()."')";
 			$insert = Yii::$app->db->createCommand($sql4)->execute();
 			if($insert){
-				// if($invite_num<=10){
-				//	if(!empty($arr['invite_code'])){
-				//	 $post_data['action'] = 'energy';
-				//	 $post_data['value'] = 10;
-				//	 $post_data['user'] = $inviteData['eth_addr'];
-				//	 $res=CurlHelper::curl_post('http://172.16.101.167:8282/node',$post_data);
-				//	 $json = json_decode($res,true);
-				//	 if($json['code']==200){
-				//		$sql7 = "update ml_user set energy=".$json['data']." where user_id = '".$inviteData['user_id']."'";
-				//		$updates = Yii::$app->db->createCommand($sql7)->execute();
-				//		$sql8 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$inviteData['user_id'].",'6',".$post_data['value'].",".time().")";
-				//		 $inserts = Yii::$app->db->createCommand($sql8)->execute();
-				//	if($updates && $inserts){
-				//		 return $this->responseHelper([], '207', '207', "注册成功");
-				//	}
-				//	 }
-				// } 
-				// }		 
 				return $this->responseHelper([], '207', '207', "注册成功");
 			}
 		}	 		
