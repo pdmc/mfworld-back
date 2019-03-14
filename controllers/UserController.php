@@ -123,7 +123,7 @@ class UserController extends BaseController
 							if($inserts){
 								return $this->responseHelper([], '207', '207', "注册成功");
 							}
-						}
+						/*}*/
 					} 
 				}		 
 				return $this->responseHelper([], '207', '207', "注册成功");
