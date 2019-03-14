@@ -136,7 +136,7 @@ class UserController extends BaseController
 			//$sql4 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`eth_addr`,`eth_key`,`invite_code`,	`create_time`, `update_time`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$address[1]."','".$private."','".$this->make_coupon_card()."', '".time()."', '".time()."')";
 			$insert = Yii::$app->db->createCommand($sql4)->execute();
 			if($insert){
-				$uid = Yii::$app()->db->getLastInsertID();
+				$uid = Yii::$app->db->getLastInsertID();
 				$sql5 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $uid . ",'2','" . CommonHelper::REGISTER_ENERGY ."',".time().")";
 	 			$energy = Yii::$app->db->createCommand($sql5)->execute();
 	 			if($energy)
