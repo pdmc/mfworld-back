@@ -104,7 +104,7 @@ class UserController extends BaseController
 			$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`invite_code`,`energy`,`create_time`, `update_time`,`invite_id`) VALUES ('" . $user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$this->make_coupon_card()."', '" . CommonHelper::REGISTER_ENERGY . "', '".time()."', '".time()."',".$inviteData['user_id'].")";
 			//$sql3 = "INSERT INTO `ml_user` (`user_nick`, `user_pwd`,`user_sex`, `user_mobile`,`eth_addr`,`eth_key`,`invite_code`,`create_time`, `update_time`,`invite_id`) VALUES ('".$user_name."', '".md5($pwd)."','".$sex."', '".$mobile."','".$address[1]."','".$private."','".$this->make_coupon_card()."', '".time()."', '".time()."',".$inviteData['user_id'].")";
 			$insert = Yii::$app->db->createCommand($sql3)->execute();
-			$uid = Yii::app()->db->getLastInsertID();
+			$uid = Yii::$app->db->getLastInsertID();
 			$sql4 = "update {{%user}} set invite_num=".$invite_num." where user_id=".$inviteData['user_id']."";
 			$update = Yii::$app->db->createCommand($sql4)->execute();
 			$sql5 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $uid . ",'2','" . CommonHelper::REGISTER_ENERGY ."',".time().")";
