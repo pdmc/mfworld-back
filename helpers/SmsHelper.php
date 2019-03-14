@@ -25,7 +25,7 @@ class SmsHelper {
 	private $Batch;  //时间戳
 	private $BodyType = "xml";//包体格式，可填值：json 、xml
 	private $enabeLog = true; //日志开关。可填值：true、
-	private $Filename="/var/www/us4yo-miraila-api/logs/smslog.txt"; //日志文件
+	private $Filename="/var/www/iontrum-api/logs/smslog.txt"; //日志文件
 	private $Handle; 
 	
 	function __construct($ServerIP,$ServerPort,$SoftVersion)	
