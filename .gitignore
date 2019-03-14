@@ -11,6 +11,9 @@ vendor/
 config.php
 database.php
 
+/logs/
+*.log
+
 /config/db.php
 /config/web.php
 /config/params.php
