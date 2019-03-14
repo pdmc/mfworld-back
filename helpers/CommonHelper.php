@@ -3,6 +3,10 @@ namespace app\helpers;
 
 class CommonHelper {
 	const PSW_KEY = 'easy_app.gy_miiti@app_16.05f';
+	const REGISTER_ENERGY = 20;
+	const LOGIN_ENERGY = 10;
+	const FRIEND_ENERGY = 20;
+	const ANSWER_ENERGY = 30;
 	
 	// 接口输出
 	public static function echoResult($errorCode = 0, $errorMsg = 'success', $data = array()) {
