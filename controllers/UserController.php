@@ -484,6 +484,7 @@ class UserController extends BaseController
 	//刷新
 	public function actionRefresh()
 	{
+		Yii::info("-----------------  Enter Refresh  -----------------");
 		date_default_timezone_set("Asia/Shanghai");	
 		$arr = Yii::$app->request->get();
 		if(empty($arr['user_id'])){
