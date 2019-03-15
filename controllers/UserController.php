@@ -61,7 +61,7 @@ class UserController extends BaseController
 		}
 		$newtime = time()-600;//10分钟有效
 		$sql = "SELECT id,code FROM ml_code WHERE mobile = '".$mobile."' 
-		 AND type ='2' AND created_at >= '".$newtime."' order by id desc limit 1";
+		AND type ='2' AND created_at >= '".$newtime."' order by id desc limit 1";
 		$code_arr = Yii::$app->db->createCommand($sql)->queryOne();
 		if (!$code_arr){
 			return $this->responseHelper([], '214', '214', "请获取验证码!");
@@ -80,7 +80,7 @@ class UserController extends BaseController
 		if(empty($sex)){
 			return $this->responseHelper([], '217', '217', "性别不能为空");
 		}
-		/*$post_data['action']		 = 'addUser';
+		/*$post_data['action']		= 'addUser';
 		// // $post_data['energy'] = 2;
 		// // $post_data['address'] =	'0x43jsnxncaldaskjfhsdsfhklsd';
 		$res=CurlHelper::curl_post('http://172.16.101.167:8282/node',$post_data);
@@ -128,7 +128,7 @@ class UserController extends BaseController
 							}
 						/*}*/
 					} 
-				}		 
+				}		
 				return $this->responseHelper([], '207', '207', "注册成功");
 			}
 		}else{
@@ -138,11 +138,11 @@ class UserController extends BaseController
 			if($insert){
 				$uid = Yii::$app->db->getLastInsertID();
 				$sql5 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $uid . ",'2','" . CommonHelper::REGISTER_ENERGY ."',".time().")";
-	 			$energy = Yii::$app->db->createCommand($sql5)->execute();
-	 			if($energy)
+				$energy = Yii::$app->db->createCommand($sql5)->execute();
+				if($energy)
 					return $this->responseHelper([], '207', '207', "注册成功");
 			}
-		}	 		
+		}			
 			
 		/*}else{
 			return $this->responseHelper([], '218', '218', "fail");
@@ -153,7 +153,7 @@ class UserController extends BaseController
 	//忘记密码
 	public function actionPasswordsReses()
 	{
-	$arr = Yii::$app->request->post();
+		$arr = Yii::$app->request->post();
 		$mobile = $arr['mobile'];
 		$code = $arr['code'];
 		$pwd = $arr['pwd'];
@@ -206,11 +206,12 @@ class UserController extends BaseController
  			// echo 11111;
 			$start = strtotime(date('Y-m-d'), time());
 			$end = $start + 60 * 60 * 24;
-			$sql6 = "select *	from {{%color_log}} where `type`=3 and create_time>".$start." and create_time<".$end." and user_id=".$re['user_id']."";
+			//$sql6 = "select *	from {{%color_log}} where `type`=3 and create_time>".$start." and create_time<".$end." and user_id=".$re['user_id']."";
+			$sql6 = "select *	from {{%energy_log}} where `type`=3 and create_time>".$start." and create_time<".$end." and user_id=".$re['user_id']."";
 			$history = Yii::$app->db->createCommand($sql6)->queryAll();
 			// echo count($history);die;
 			if(count($history)<1){
-	 			/*$post_data['action'] = 'energy';
+				/*$post_data['action'] = 'energy';
 				$post_data['value'] = 2;
 				$post_data['user'] = $re['eth_addr'];
 				// $post_data;die;
@@ -219,30 +220,30 @@ class UserController extends BaseController
 				$json = json_decode($res,true);
 				// print_r($json);die;
 				$color=$this->color($re['eth_addr']);
-				//	 print_r($color);die;
+				//	print_r($color);die;
 				$pow = pow(10, 18);
 				$num = number_format($color['data']/$pow, 5);
-				if($json['code']==200 && $color['code']==200){	*/	 			
-		 			$sql2 = "insert into ml_login_logs (user_id,client_name,login_time,login_ip,login_type) VALUES (".$re['user_id'].",'".$re['user_nick']."','".date('Y-m-d H:i:s',time())."','".CommonHelper::getClientIp()."',".$login_type.")";
-		 			$sql3 = "update ml_user set token='" . $token . "',energy=energy+" . CommonHelper::LOGIN_ENERGY . " where user_id = '" . $re['user_id'] . "'";
-		 			//$sql3 = "update ml_user set token='".$token."',energy=".$json['data']." where user_id = '".$re['user_id']."'";
-		 			$sql4 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $re['user_id'] . ",'3','" . CommonHelper::LOGIN_ENERGY ."',".time().")";
-		 			//$sql4 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$re['user_id'].",'3',".$post_data['value'].",".time().")";
-	 				// echo $sql3."<br/>".$sql4;die;
-		 			$insert = Yii::$app->db->createCommand($sql2)->execute();
-		 			$update = Yii::$app->db->createCommand($sql3)->execute();
-		 			$energy = Yii::$app->db->createCommand($sql4)->execute();
-		 			if($insert && $update && $energy){
+				if($json['code']==200 && $color['code']==200){	*/				
+					$sql2 = "insert into ml_login_logs (user_id,client_name,login_time,login_ip,login_type) VALUES (".$re['user_id'].",'".$re['user_nick']."','".date('Y-m-d H:i:s',time())."','".CommonHelper::getClientIp()."',".$login_type.")";
+					$sql3 = "update ml_user set token='" . $token . "',energy=energy+" . CommonHelper::LOGIN_ENERGY . " where user_id = '" . $re['user_id'] . "'";
+					//$sql3 = "update ml_user set token='".$token."',energy=".$json['data']." where user_id = '".$re['user_id']."'";
+					$sql4 = "insert into ml_energy_log (user_id,type,value,create_time) VALUES (" . $re['user_id'] . ",'3','" . CommonHelper::LOGIN_ENERGY ."',".time().")";
+					//$sql4 = "insert into ml_color_log (user_id,type,value,create_time) VALUES (".$re['user_id'].",'3',".$post_data['value'].",".time().")";
+					// echo $sql3."<br/>".$sql4;die;
+					$insert = Yii::$app->db->createCommand($sql2)->execute();
+					$update = Yii::$app->db->createCommand($sql3)->execute();
+					$energy = Yii::$app->db->createCommand($sql4)->execute();
+					if($insert && $update && $energy){
 					// echo 22222;die;
-		 				$sql3 = "select energy from ml_user where user_id=".$re['user_id']."";
-		 				$res = Yii::$app->db->createCommand($sql3)->queryOne();
-		 				$data['mobile'] = substr_replace($re['user_mobile'],'****',3,4);
-		 				$data['user_nick'] = $re['user_nick'];
-		 				$data['user_sex'] = $re['user_sex'];
-		 				$data['token']	= $token;
-		 				$data['invite_code'] = $re['invite_code'];
-		 				$data['user_id'] = $re['user_id'];
-		 				$data['physical'] = $re['physical'];
+						$sql3 = "select energy from ml_user where user_id=".$re['user_id']."";
+						$res = Yii::$app->db->createCommand($sql3)->queryOne();
+						$data['mobile'] = substr_replace($re['user_mobile'],'****',3,4);
+						$data['user_nick'] = $re['user_nick'];
+						$data['user_sex'] = $re['user_sex'];
+						$data['token']	= $token;
+						$data['invite_code'] = $re['invite_code'];
+						$data['user_id'] = $re['user_id'];
+						$data['physical'] = $re['physical'];
 						/*if($num=='0.00000'){
 							$data['color'] = $num;
 						}else{
@@ -256,11 +257,11 @@ class UserController extends BaseController
 						}*/
 						$data['color'] = '0.00000';
 						$data['ucolor'] = $re['color'];
-				 		$data['energy'] = $res['energy'];
+						$data['energy'] = $res['energy'];
 						//print_r($data);die;
-				 		return $this->responseHelper($data, '209', '209', "登录成功");
-			 		}
-	 			/*}else{
+						return $this->responseHelper($data, '209', '209', "登录成功");
+					}
+				/*}else{
 					return $this->responseHelper([], '211', '211', "fail");
 				}*/
 			}
@@ -301,7 +302,7 @@ class UserController extends BaseController
 				} 
 			/*}else{
 				return $this->responseHelper([], '211', '211', "fail");
-			}	*/ 		 
+			}	*/ 		
  		}else{
  			return $this->responseHelper([], '210', '210', "登陆失败");
  		}
@@ -318,23 +319,23 @@ class UserController extends BaseController
 	public function actionCollect()
 	{
 		date_default_timezone_set("Asia/Shanghai");
-	 	$arr = Yii::$app->request->post();
-	 	$sql = "select eth_addr from ml_user where user_id=".$arr['user_id']."";
-	 	$re = Yii::$app->db->createCommand($sql)->queryOne();
-	 	$post_data['action'] = 'getDiamond';
+		$arr = Yii::$app->request->post();
+		$sql = "select eth_addr from ml_user where user_id=".$arr['user_id']."";
+		$re = Yii::$app->db->createCommand($sql)->queryOne();
+		$post_data['action'] = 'getDiamond';
 		// $post_data['value'] = $arr['color'];
 		$post_data['user'] = $re['eth_addr'];
 		$res=CurlHelper::curl_post('http://172.16.101.167:8282/node',$post_data);
 		$json = json_decode($res,true);
-		 //	print_r($json);die;
+		//	print_r($json);die;
 		if(strpos($json['data'],'+')!==false){
 		$ji = $this-> sctonum($json['data'], 21);
 		$peng = explode('.',$ji);
 		$pow = pow(10, 18);
 			$num = number_format($peng[0]/$pow,5,'.','');
 		}else{
-		$pow = pow(10, 18);
-		 	 $num = number_format($json['data']/$pow,5);
+			$pow = pow(10, 18);
+			$num = number_format($json['data']/$pow,5);
 		}
 		//$pow = pow(10, 18);
 		//$num = number_format($json['data']/$pow, 5);
@@ -351,11 +352,11 @@ class UserController extends BaseController
 				return $this->responseHelper([], '202', '202', "收取失败");
 			}
 		}
-	 }
+	}
 
-	 //个人信息
-	 public function actionInfo()
-	 {
+	//个人信息
+	public function actionInfo()
+	{
 		date_default_timezone_set("Asia/Shanghai");
 		$arr = Yii::$app->request->get();
 		if (empty($arr['user_id'])) {
@@ -364,7 +365,8 @@ class UserController extends BaseController
 		$num = number_format('900000000',2);
 		$start_time = strtotime(date('Y-m-d 00:00:00', time()-60*60*24));
 		$end_time = strtotime(date('Y-m-d 23:59:59', time()-60*60*24));
-		$sql = "select sum(value) as num from {{%color_log}} where create_time>".$start_time." and create_time<".$end_time." and `type`=2";
+		//$sql = "select sum(value) as num from {{%color_log}} where create_time>".$start_time." and create_time<".$end_time." and `type`=2";
+		$sql = "select sum(value) as num from {{%energy_log}} where create_time>".$start_time." and create_time<".$end_time." and `type`=2";
 		$re = Yii::$app->db->createCommand($sql)->queryOne();
 		// print_r($re);die;
 		if($re['num']>0){
@@ -375,11 +377,11 @@ class UserController extends BaseController
 		$res['all'] = $num;
 		$res['num'] = $yester;
 		return $this->responseHelper($res, '200', '200', 'success');
-	 }
+	}
 
-	 //能量记录
-	 public function actionEnerlog()
-	 {
+	//能量记录
+	public function actionEnerlog()
+	{
 		$arr = Yii::$app->request->get();
 		if (empty($arr['user_id'])) {
 			return $this->responseHelper([], '201', '201', '用户信息不存在');
@@ -388,11 +390,12 @@ class UserController extends BaseController
 		$sql3 = "select energy from ml_user where user_id=".$arr['user_id']."";
 		$res = Yii::$app->db->createCommand($sql3)->queryOne();
 
-		$sql = "select * from {{%color_log}} where `type` in (3,4,5,6) and user_id=".$arr['user_id']." order by create_time DESC";
+		//$sql = "select * from {{%color_log}} where `type` in (3,4,5,6) and user_id=".$arr['user_id']." order by create_time DESC";
+		$sql = "select * from {{%energy_log}} where `type` in (3,4,5,6) and user_id=".$arr['user_id']." order by create_time DESC";
 		$history = Yii::$app->db->createCommand($sql)->queryAll();
 		// print_r($history);die;
 		if(!empty($history)){
-		 foreach($history as $k=>$v){
+		foreach($history as $k=>$v){
 			if($v['type']==3){
 			$history[$k]['name'] = '登录';
 			}else if ($v['type']==4){
@@ -409,11 +412,11 @@ class UserController extends BaseController
 		// print_r($history);die;
 		return $this->responseHelper($history, '200', '200', 'success');
 
-	 }
+	}
 
-	 public function actionPhysical()
-	 {
-	 $arr = Yii::$app->request->get();
+	public function actionPhysical()
+	{
+	$arr = Yii::$app->request->get();
 		if (empty($arr['user_id'])) {
 			return $this->responseHelper([], '201', '201', '用户信息不存在');
 		}
@@ -422,12 +425,12 @@ class UserController extends BaseController
 		$re['num'] = 10 - $res['invite_num'];
 		$re['physical'] = $res['physical'];
 		return $this->responseHelper($re, '200', '200', 'success');
-	 }
+	}
 
 
-	 //彩钻记录
-	 public function actionColorlog()
-	 {
+	//彩钻记录
+	public function actionColorlog()
+	{
 		$arr = Yii::$app->request->get();
 		if (empty($arr['user_id'])) {
 			return $this->responseHelper([], '201', '201', '用户信息不存在');
@@ -446,85 +449,87 @@ class UserController extends BaseController
 			$history[$k]['name']="收取彩钻";
 			}
 		}
-		}	 
+		}	
 		$history[]['color'] = $res['color'];
 		$history[]['addr'] = $res['eth_addr']; 
 		// print_r($history);die;
 		return $this->responseHelper($history, '200', '200', 'success');
-	 }
-
-
-	 //邀请好友次数
-	 public function actionInvite()
-	 {
-	//$arr = Yii::$app->request->get();
-	//$sql3 = "select invite_num,invite_code from ml_user where user_id=".$arr['user_id']."";
-	//$res = Yii::$app->db->createCommand($sql3)->queryOne();
-	//$res['invite_num'] = 10-$res['invite_num'];
-	$session = Yii::$app->session;
-	$session->open();
-	$arr = Yii::$app->request->get();
-	$invite = "invite_" . $arr['user_id'];
-	$data = $session->get($invite);
-	if (!empty($data)) {
-		$session->remove($invite);
 	}
-	$sql3 = "select invite_num,invite_code from ml_user where user_id=".$arr['user_id']."";
-	$res = Yii::$app->db->createCommand($sql3)->queryOne();
-	$res['invite_num'] = 10-$res['invite_num'];
-	$session->set($invite, $res);
-	$data = $session->get($invite);
-	return $this->responseHelper($data, '200', '200', 'success');
-	 }
 
 
-	 //刷新
-	 public function actionRefresh()
-	 {
-	date_default_timezone_set("Asia/Shanghai");	
-	$arr = Yii::$app->request->get();
-	if(empty($arr['user_id'])){
-		return $this->responseHelper([], '201', '201', "未登录");
-	}
-	$sql = "select eth_addr,color,energy from {{%user}} where user_id=".$arr['user_id'];
-	$re = Yii::$app->db->createCommand($sql)->queryOne();
-	$color=$this->color($re['eth_addr']);
-	$pow = pow(10, 18);
-	$num = number_format($color['data']/$pow, 5);
-	$res['color'] = $re['color'];
-	// $res['num'] = $num;
-				if($num=='0.00000'){
-				$res['num'] = $num;
-				}else{
-				$time = time()-$color['time'];
-				$c = 7200 * 24;
-				$perce = (round($time / $c,2))*100;
-				if($perce>100){
-					$perce=100;
-				}
-				$res['num'] = array(
-					'num'=>$num,
-					'perce'=>$perce
-					);
-				}
-	$res['energy'] = $re['energy'];
-	$sql = "select * from ml_guessing";
-	$arr = Yii::$app->db->createCommand($sql)->queryAll();
-	if(!empty($arr)){
-		foreach($arr as $k=>$v){
-		if(time()>$v['close_time'] && $v['status']==1){
-		$sql1 = "UPDATE ml_guessing SET `status` = 2 WHERE `id` = " . $v['id'];
-		\Yii::$app->db->createCommand($sql1)->execute();
+	//邀请好友次数
+	public function actionInvite()
+	{
+		//$arr = Yii::$app->request->get();
+		//$sql3 = "select invite_num,invite_code from ml_user where user_id=".$arr['user_id']."";
+		//$res = Yii::$app->db->createCommand($sql3)->queryOne();
+		//$res['invite_num'] = 10-$res['invite_num'];
+		$session = Yii::$app->session;
+		$session->open();
+		$arr = Yii::$app->request->get();
+		$invite = "invite_" . $arr['user_id'];
+		$data = $session->get($invite);
+		if (!empty($data)) {
+			$session->remove($invite);
 		}
+		$sql3 = "select invite_num,invite_code from ml_user where user_id=".$arr['user_id']."";
+		$res = Yii::$app->db->createCommand($sql3)->queryOne();
+		$res['invite_num'] = 10-$res['invite_num'];
+		$session->set($invite, $res);
+		$data = $session->get($invite);
+		return $this->responseHelper($data, '200', '200', 'success');
 	}
-	$sql2 = "SELECT * FROM ml_guessing WHERE `status` =1	ORDER BY close_time ASC,sort ASC limit 5";
-	// echo $sql2;die;
-	$re = Yii::$app->db->createCommand($sql2)->queryAll();
-	// print_r($res);die;
-	 // if(!empty($re)){
-		foreach ($re as $key => $value) {
-	$re[$key]['support1'] = @round(($value['option_one_total'] / $value['option_all_total'])*100);
-	$re[$key]['support2'] = @round(($value['option_two_total'] / $value['option_all_total'])*100);
+
+
+	//刷新
+	public function actionRefresh()
+	{
+		date_default_timezone_set("Asia/Shanghai");	
+		$arr = Yii::$app->request->get();
+		if(empty($arr['user_id'])){
+			return $this->responseHelper([], '201', '201', "未登录");
+		}
+		$sql = "select eth_addr,color,energy from {{%user}} where user_id=".$arr['user_id'];
+		$re = Yii::$app->db->createCommand($sql)->queryOne();
+		/*$color=$this->color($re['eth_addr']);
+		$pow = pow(10, 18);
+		$num = number_format($color['data']/$pow, 5);
+		$res['color'] = $re['color'];
+		// $res['num'] = $num;
+		if($num=='0.00000'){
+			$res['num'] = $num;
+		}else{
+			$time = time()-$color['time'];
+			$c = 7200 * 24;
+			$perce = (round($time / $c,2))*100;
+			if($perce>100){
+				$perce=100;
+			}
+			$res['num'] = array(
+				'num'=>$num,
+				'perce'=>$perce
+			);
+		}*/
+		$res['num'] = '0.00000';
+		$res['energy'] = $re['energy'];
+		$sql = "select * from ml_guessing";
+		$arr = Yii::$app->db->createCommand($sql)->queryAll();
+		// refresh guessing pool status 竞猜
+		if(!empty($arr)){
+			foreach($arr as $k=>$v){
+				if(time()>$v['close_time'] && $v['status']==1){
+					$sql1 = "UPDATE ml_guessing SET `status` = 2 WHERE `id` = " . $v['id'];
+					Yii::$app->db->createCommand($sql1)->execute();
+				}
+			}
+			$sql2 = "SELECT * FROM ml_guessing WHERE `status` =1	ORDER BY close_time ASC,sort ASC limit 5";
+			// echo $sql2;die;
+			$re = Yii::$app->db->createCommand($sql2)->queryAll();
+			// print_r($res);die;
+			// if(!empty($re)){
+			foreach ($re as $key => $value) {
+				$re[$key]['support1'] = @round(($value['option_one_total'] / $value['option_all_total'])*100);
+				$re[$key]['support2'] = @round(($value['option_two_total'] / $value['option_all_total'])*100);
 					// if($result['support1']==0){
 					// 	if($result['support2']==0){
 					// 		$result['support1']=100
@@ -543,45 +548,45 @@ class UserController extends BaseController
 						//}
 						//return $this->responseHelper($result, '200', '200', "下注成功"); 
 					//}
-		//$re[$key]['support1'] = @round(($value['option_one_total'] / $value['option_all_total'])*100);
-		 // if($re[$key]['support1']==0){
-		 // $re[$key]['support2']=0;
-		 // }else{
-		 // $re[$key]['support2'] = 100-$re[$key]['support1'];
-
-		//}
-		//$re[$key]['odds1'] = @sprintf('%.2f',($value['option_all_total'] / $value['option_one_total']));
-		 // $re[$key]['odds2'] = @sprintf('%.2f',($value['option_all_total'] / $value['option_two_total']));
-	}
-	 //print_r($re);die;
-	$now = strtotime(date('Y-m-d H:i:s',time()));
-	$re['now']= $now;
-	}
-	 // }
-	// print_r($re);die;
-	$res['guess'] = $re;
-	//print_r($res);die;
-	if($color['code']==200)
-	{
-		foreach($res['guess'] as $k=>$v){
-	if($v['support1']==0 && $v['support2']==0){
-			 return $this->responseHelper($res, '200', '200', "下注成功");
-		}else{
-			if($v['support1']!=0){
-			$v['support2'] = 100-$v['support1'];
-			}else if($v['support2']!=0){
-			$v['support1'] = 100-$v['support2'];
+				//$re[$key]['support1'] = @round(($value['option_one_total'] / $value['option_all_total'])*100);
+				// if($re[$key]['support1']==0){
+				// $re[$key]['support2']=0;
+				// }else{
+				// $re[$key]['support2'] = 100-$re[$key]['support1'];
+		
+				//}
+				//$re[$key]['odds1'] = @sprintf('%.2f',($value['option_all_total'] / $value['option_one_total']));
+				// $re[$key]['odds2'] = @sprintf('%.2f',($value['option_all_total'] / $value['option_two_total']));
 			}
-			 return $this->responseHelper($res, '200', '200', "下注成功"); 
+			//print_r($re);die;
+			$now = strtotime(date('Y-m-d H:i:s',time()));
+			$re['now']= $now;
 		}
-	
-		}
-		//return $this->responseHelper($res, '200', '200', "成功");
+		// }
+		// print_r($re);die;
+		$res['guess'] = $re;
+		//print_r($res);die;
+		//if($color['code']==200)
+		//{
+			foreach($res['guess'] as $k=>$v){
+				if($v['support1']==0 && $v['support2']==0){
+					return $this->responseHelper($res, '200', '200', "下注成功");
+				}else{
+					if($v['support1']!=0){
+					$v['support2'] = 100-$v['support1'];
+					}else if($v['support2']!=0){
+					$v['support1'] = 100-$v['support2'];
+					}
+					return $this->responseHelper($res, '200', '200', "下注成功"); 
+				}
+		
+			}
+			return $this->responseHelper($res, '200', '200', "成功");
+		//}
+
 	}
 
-	 }
-
-	 //退出登录
+	//退出登录
 	public function actionLoginout()
 	{
 		$arr = Yii::$app->request->post();
@@ -593,9 +598,10 @@ class UserController extends BaseController
 			return $this->responseHelper([], '201', '201', "退出登录");
 		}
 	}
-	 //生成用户邀请码
-		public	function make_coupon_card()
-		 {
+	
+	//生成用户邀请码
+	public	function make_coupon_card()
+	{
 		$code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$rand = $code[rand(0,25)]
 			.strtoupper(dechex(date('m')))
